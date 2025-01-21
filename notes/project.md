@@ -458,6 +458,16 @@ int *dev_particleArrayIndices;  // 粒子索引
 int *dev_particleGridIndices;   // 网格索引
 int *dev_gridCellStartIndices;  // 网格起始索引
 int *dev_gridCellEndIndices;    // 网格结束索引
+
+thrust::device_ptr<int> dev_thrust_particleArrayIndices;
+thrust::device_ptr<int> dev_thrust_particleGridIndices;
+
+int gridCellCount;          // 表示总的网格单元数量
+int gridSideCount;          // 表示每个维度(x/y/z)上的网格数量
+float gridCellWidth;
+float gridInverseCellWidth;
+glm::vec3 gridMinimum;      // 表示整个网格空间的最小坐标点(左下角)
+
 ```
 
 
