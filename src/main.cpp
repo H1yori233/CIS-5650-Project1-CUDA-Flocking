@@ -20,14 +20,17 @@
 #define UNIFORM_GRID 1
 #define COHERENT_GRID 1
 #define SINGLE_DISTANCE_MODE 0
-#define KJI_MODE 0  // 0: ijk order, 1: kji order
+#define KJI_MODE 0 // 0: ijk order, 1: kji order
 
 // LOOK-1.2 - change this to adjust particle count in the simulation
 //  const int N_FOR_VIS = 5000;
- const int N_FOR_VIS = 23333;
-//const int N_FOR_VIS = 1000;
-// const float DT = 0.2f;
+const int N_FOR_VIS = 23333;
+// const int N_FOR_VIS = 1000;
+//  const float DT = 0.2f;
 const float DT = 0.02f;
+
+// Timer
+cudaEvent_t start, stop;
 
 /**
  * C main function.
@@ -40,6 +43,8 @@ int main(int argc, char *argv[])
   {
     mainLoop();
     Boids::endSimulation();
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
     return 0;
   }
   else
@@ -60,6 +65,17 @@ GLFWwindow *window;
  */
 bool init(int argc, char **argv)
 {
+  // 输出当前配置信息
+  printf("\n==== Current Configuration ====\n");
+  printf("VISUALIZE: %d\n", VISUALIZE);
+  printf("UNIFORM_GRID: %d\n", UNIFORM_GRID);
+  printf("COHERENT_GRID: %d\n", COHERENT_GRID);
+  printf("SINGLE_DISTANCE_MODE: %d\n", SINGLE_DISTANCE_MODE);
+  printf("KJI_MODE: %d\n", KJI_MODE);
+  printf("N_FOR_VIS: %d\n", N_FOR_VIS);
+  // printf("Block Size: %d\n", blockSize);
+  printf("===========================\n\n");
+
   // Set window title to "Student Name: [SM 2.0] GPU Name"
   cudaDeviceProp deviceProp;
   int gpuDevice = 0;
@@ -127,6 +143,8 @@ bool init(int argc, char **argv)
 
   // Initialize N-body simulation
   Boids::initSimulation(N_FOR_VIS);
+  cudaEventCreate(&start);
+  cudaEventCreate(&stop);
 
   updateCamera();
 
@@ -206,6 +224,10 @@ void initShaders(GLuint *program)
 //====================================
 void runCUDA()
 {
+  cudaEventRecord(start);
+
+  // -------------------------------------------------------- //
+
   // Map OpenGL buffer object for writing from CUDA on a single GPU
   // No data is moved (Win & Linux). When mapped to CUDA, OpenGL should not
   // use this buffer
@@ -232,6 +254,26 @@ void runCUDA()
   // unmap buffer object
   cudaGLUnmapBufferObject(boidVBO_positions);
   cudaGLUnmapBufferObject(boidVBO_velocities);
+
+  // -------------------------------------------------------- //
+
+  cudaEventRecord(stop);
+  cudaEventSynchronize(stop);
+
+  float milliseconds = 0;
+  cudaEventElapsedTime(&milliseconds, start, stop);
+
+  static int frameCount = 0;
+  static float totalTime = 0;
+  totalTime += milliseconds;
+  frameCount++;
+  if (frameCount == 100)
+  {
+    float avgTime = totalTime / frameCount;
+    printf("Average simulation time per frame: %.3f ms\n", avgTime);
+    totalTime = 0;
+    frameCount = 0;
+  }
 }
 
 void mainLoop()

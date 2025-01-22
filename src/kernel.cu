@@ -98,6 +98,7 @@ float gridCellWidth;
 float gridInverseCellWidth;
 glm::vec3 gridMinimum;
 
+
 /******************
  * initSimulation *
  ******************/
