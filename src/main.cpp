@@ -18,13 +18,16 @@
 // LOOK-2.1 LOOK-2.3 - toggles for UNIFORM_GRID and COHERENT_GRID
 #define VISUALIZE 1
 #define UNIFORM_GRID 1
-#define COHERENT_GRID 0
+#define COHERENT_GRID 1
 #define SINGLE_DISTANCE_MODE 0
+#define KJI_MODE 0  // 0: ijk order, 1: kji order
 
 // LOOK-1.2 - change this to adjust particle count in the simulation
-// const int N_FOR_VIS = 5000;
-const int N_FOR_VIS = 50000;
-const float DT = 0.2f;
+//  const int N_FOR_VIS = 5000;
+ const int N_FOR_VIS = 23333;
+//const int N_FOR_VIS = 1000;
+// const float DT = 0.2f;
+const float DT = 0.02f;
 
 /**
  * C main function.
